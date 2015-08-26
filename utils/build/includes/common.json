@@ -150,6 +150,7 @@
 	"src/renderers/webgl/plugins/LensFlarePlugin.js",
 	"src/renderers/webgl/plugins/ShadowMapPlugin.js",
 	"src/renderers/webgl/plugins/SpritePlugin.js",
+        "src/extras/objects/ImmediateRenderObject.js",
         "examples/js/renderers/Projector.js",
         "examples/js/renderers/CanvasRenderer.js",
         "src/extras/geometries/PlaneBufferGeometry.js",
