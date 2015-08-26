@@ -149,6 +149,16 @@
 	"src/renderers/webgl/WebGLState.js",
 	"src/renderers/webgl/plugins/LensFlarePlugin.js",
 	"src/renderers/webgl/plugins/ShadowMapPlugin.js",
-	"src/renderers/webgl/plugins/SpritePlugin.js"
-
+	"src/renderers/webgl/plugins/SpritePlugin.js",
+        "examples/js/renderers/Projector.js",
+        "examples/js/renderers/CanvasRenderer.js",
+        "src/extras/geometries/PlaneBufferGeometry.js",
+        "examples/js/shaders/BleachBypassShader.js",
+        "examples/js/shaders/ColorCorrectionShader.js",
+        "examples/js/shaders/CopyShader.js",
+        "examples/js/shaders/FXAAShader.js",
+        "examples/js/postprocessing/EffectComposer.js",
+        "examples/js/postprocessing/RenderPass.js",
+        "examples/js/postprocessing/ShaderPass.js",
+        "examples/js/postprocessing/MaskPass.js"
 ]
