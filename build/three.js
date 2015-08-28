@@ -15476,7 +15476,7 @@ THREE.Mesh.prototype.raycast = ( function () {
 							distance: distance,
 							point: intersectionPoint,
 							face: new THREE.Face3( a, b, c, THREE.Triangle.normal( vA, vB, vC ) ),
-							faceIndex: null,
+							faceIndex: Math.floor( i / 3 ),
 							object: this
 
 						} );
@@ -15522,7 +15522,7 @@ THREE.Mesh.prototype.raycast = ( function () {
 						distance: distance,
 						point: intersectionPoint,
 						face: new THREE.Face3( a, b, c, THREE.Triangle.normal( vA, vB, vC ) ),
-						faceIndex: null,
+						index: Math.floor( i / 3 ),
 						object: this
 
 					} );
