@@ -61,5 +61,15 @@
 	"src/extras/helpers/VertexNormalsHelper.js",
 	"src/extras/helpers/WireframeHelper.js",
 	"src/extras/objects/ImmediateRenderObject.js",
-	"src/extras/objects/MorphBlendMesh.js"
+	"src/extras/objects/MorphBlendMesh.js",
+	"examples/js/renderers/Projector.js",
+	"examples/js/renderers/CanvasRenderer.js",
+	"examples/js/shaders/BleachBypassShader.js",
+	"examples/js/shaders/ColorCorrectionShader.js",
+	"examples/js/shaders/CopyShader.js",
+	"examples/js/shaders/FXAAShader.js",
+	"examples/js/postprocessing/EffectComposer.js",
+	"examples/js/postprocessing/RenderPass.js",
+	"examples/js/postprocessing/ShaderPass.js",
+	"examples/js/postprocessing/MaskPass.js"
 ]
