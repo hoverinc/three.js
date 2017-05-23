@@ -109,6 +109,10 @@ function WebGLRenderer( parameters ) {
 	this.maxMorphTargets = 8;
 	this.maxMorphNormals = 4;
 
+	// shader dictionary
+	this.vxShaderDict = {};
+	this.pxShaderDict = {};
+
 	// internal properties
 
 	var _this = this,
@@ -1554,7 +1558,9 @@ function WebGLRenderer( parameters ) {
 					name: material.type,
 					uniforms: UniformsUtils.clone( shader.uniforms ),
 					vertexShader: shader.vertexShader,
-					fragmentShader: shader.fragmentShader
+					fragmentShader: shader.fragmentShader,
+					vshaderHash: 0,
+					pshaderHash: 0
 				};
 
 			} else {
@@ -1563,7 +1569,9 @@ function WebGLRenderer( parameters ) {
 					name: material.type,
 					uniforms: material.uniforms,
 					vertexShader: material.vertexShader,
-					fragmentShader: material.fragmentShader
+					fragmentShader: material.fragmentShader,
+					vshaderHash: 0,
+					pshaderHash: 0
 				};
 
 			}
