@@ -16484,6 +16484,15 @@ function unrollLoops( string ) {
 
 }
 
+function djb2Code(str){
+    var hash = 5381;
+    for (i = 0; i < str.length; i++) {
+        char = str.charCodeAt(i);
+        hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+    }
+    return hash;
+}
+
 function WebGLProgram( renderer, code, material, parameters ) {
 
 	var gl = renderer.context;
@@ -16801,6 +16810,19 @@ function WebGLProgram( renderer, code, material, parameters ) {
 
 	// console.log( '*VERTEX*', vertexGlsl );
 	// console.log( '*FRAGMENT*', fragmentGlsl );
+
+	material.__webglShader.vshaderHash = djb2Code(vertexGlsl).toString();
+	material.__webglShader.pshaderHash = djb2Code(fragmentGlsl).toString();
+	if( !(material.__webglShader.vshaderHas in renderer.vxShaderDict)  )
+	{
+		renderer.vxShaderDict[material.__webglShader.vshaderHash] = vertexGlsl;
+	}
+
+	if( !(material.__webglShader.pshaderHash in renderer.pxShaderDict)  )
+	{
+		renderer.pxShaderDict[material.__webglShader.pshaderHash] = fragmentGlsl;
+	}
+
 
 	var glVertexShader = WebGLShader( gl, gl.VERTEX_SHADER, vertexGlsl );
 	var glFragmentShader = WebGLShader( gl, gl.FRAGMENT_SHADER, fragmentGlsl );
@@ -19861,6 +19883,10 @@ function WebGLRenderer( parameters ) {
 	this.maxMorphTargets = 8;
 	this.maxMorphNormals = 4;
 
+	// shader dictionary
+	this.vxShaderDict = {};
+	this.pxShaderDict = {};
+
 	// internal properties
 
 	var _this = this,
@@ -21306,7 +21332,9 @@ function WebGLRenderer( parameters ) {
 					name: material.type,
 					uniforms: UniformsUtils.clone( shader.uniforms ),
 					vertexShader: shader.vertexShader,
-					fragmentShader: shader.fragmentShader
+					fragmentShader: shader.fragmentShader,
+					vshaderHash: 0,
+					pshaderHash: 0
 				};
 
 			} else {
@@ -21315,7 +21343,9 @@ function WebGLRenderer( parameters ) {
 					name: material.type,
 					uniforms: material.uniforms,
 					vertexShader: material.vertexShader,
-					fragmentShader: material.fragmentShader
+					fragmentShader: material.fragmentShader,
+					vshaderHash: 0,
+					pshaderHash: 0
 				};
 
 			}

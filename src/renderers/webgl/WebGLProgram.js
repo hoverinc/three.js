@@ -521,7 +521,6 @@ function WebGLProgram( renderer, code, material, parameters ) {
 	// console.log( '*VERTEX*', vertexGlsl );
 	// console.log( '*FRAGMENT*', fragmentGlsl );
 
-	
 	material.__webglShader.vshaderHash = djb2Code(vertexGlsl).toString();
 	material.__webglShader.pshaderHash = djb2Code(fragmentGlsl).toString();
 	if( !(material.__webglShader.vshaderHas in renderer.vxShaderDict)  )
