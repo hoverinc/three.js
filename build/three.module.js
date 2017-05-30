@@ -19974,7 +19974,11 @@ function WebGLRenderer( parameters ) {
 			calls: 0,
 			vertices: 0,
 			faces: 0,
-			points: 0
+			points: 0,
+			shaderSwitch: 0,
+			uniformUpdate : 0,
+			opaqueObj: 0,
+			transparentObj: 0
 
 		};
 
@@ -20915,6 +20919,10 @@ function WebGLRenderer( parameters ) {
 		_infoRender.vertices = 0;
 		_infoRender.faces = 0;
 		_infoRender.points = 0;
+		_infoRender.shaderSwitch = 0;
+		_infoRender.uniformUpdate = 0;
+		_infoRender.opaqueObj = opaqueObjects.length;
+		_infoRender.transparentObj = transparentObjects.length;
 
 		if ( renderTarget === undefined ) {
 
@@ -21519,6 +21527,7 @@ function WebGLRenderer( parameters ) {
 		var refreshProgram = false;
 		var refreshMaterial = false;
 		var refreshLights = false;
+		var uniformUpload = 0;
 
 		var program = materialProperties.program,
 			p_uniforms = program.getUniforms(),
@@ -21531,8 +21540,9 @@ function WebGLRenderer( parameters ) {
 
 			refreshProgram = true;
 			refreshMaterial = true;
-			refreshLights = true;
+			refreshLights = true;	
 
+			_infoRender.shaderSwitch++;
 		}
 
 		if ( material.id !== _currentMaterialId ) {
@@ -21630,6 +21640,8 @@ function WebGLRenderer( parameters ) {
 
 			}
 
+			uniformUpload++;
+
 		}
 
 		if ( refreshMaterial ) {
@@ -21664,7 +21676,7 @@ function WebGLRenderer( parameters ) {
 				material.isMeshNormalMaterial ||
 				material.isMeshDepthMaterial ) {
 
-				refreshUniformsCommon( m_uniforms, material );
+				uniformUpload += refreshUniformsCommon( m_uniforms, material );
 
 			}
 
@@ -21685,23 +21697,23 @@ function WebGLRenderer( parameters ) {
 
 			} else if ( material.isMeshLambertMaterial ) {
 
-				refreshUniformsLambert( m_uniforms, material );
+				uniformUpload += refreshUniformsLambert( m_uniforms, material );
 
 			} else if ( material.isMeshToonMaterial ) {
 
-				refreshUniformsToon( m_uniforms, material );
+				uniformUpload += refreshUniformsToon( m_uniforms, material );
 
 			} else if ( material.isMeshPhongMaterial ) {
 
-				refreshUniformsPhong( m_uniforms, material );
+				uniformUpload += refreshUniformsPhong( m_uniforms, material );
 
 			} else if ( material.isMeshPhysicalMaterial ) {
 
-				refreshUniformsPhysical( m_uniforms, material );
+				uniformUpload += refreshUniformsPhysical( m_uniforms, material );
 
 			} else if ( material.isMeshStandardMaterial ) {
 
-				refreshUniformsStandard( m_uniforms, material );
+				uniformUpload += refreshUniformsStandard( m_uniforms, material );
 
 			} else if ( material.isMeshDepthMaterial ) {
 
@@ -21715,7 +21727,7 @@ function WebGLRenderer( parameters ) {
 
 			} else if ( material.isMeshNormalMaterial ) {
 
-				refreshUniformsNormal( m_uniforms, material );
+				uniformUpload += refreshUniformsNormal( m_uniforms, material );
 
 			}
 
@@ -21727,7 +21739,8 @@ function WebGLRenderer( parameters ) {
 
 			WebGLUniforms.upload(
 				_gl, materialProperties.uniformsList, m_uniforms, _this );
-
+			
+			uniformUpload++;
 		}
 
 
@@ -21737,6 +21750,8 @@ function WebGLRenderer( parameters ) {
 		p_uniforms.set( _gl, object, 'normalMatrix' );
 		p_uniforms.setValue( _gl, 'modelMatrix', object.matrixWorld );
 
+		if(uniformUpload > 0)
+			_infoRender.uniformUpdate++;
 		return program;
 
 	}
@@ -21744,6 +21759,8 @@ function WebGLRenderer( parameters ) {
 	// Uniforms (refresh uniforms objects)
 
 	function refreshUniformsCommon( uniforms, material ) {
+
+		var uniformChange = 0;
 
 		uniforms.opacity.value = material.opacity;
 
@@ -21753,6 +21770,7 @@ function WebGLRenderer( parameters ) {
 
 			uniforms.emissive.value.copy( material.emissive ).multiplyScalar( material.emissiveIntensity );
 
+			uniformChange++;
 		}
 
 		uniforms.map.value = material.map;
@@ -21845,16 +21863,20 @@ function WebGLRenderer( parameters ) {
 		// this check must be handled differently, or removed entirely, if WebGLRenderTargetCube uses a CubeTexture in the future
 		uniforms.flipEnvMap.value = ( ! ( material.envMap && material.envMap.isCubeTexture ) ) ? 1 : - 1;
 
-		uniforms.reflectivity.value = material.reflectivity;
-		uniforms.refractionRatio.value = material.refractionRatio;
-
+		{
+			uniforms.reflectivity.value = material.reflectivity;
+			uniforms.refractionRatio.value = material.refractionRatio;
+			uniformChange++;
+		}
+		
+		return uniformChange;
 	}
 
 	function refreshUniformsLine( uniforms, material ) {
 
 		uniforms.diffuse.value = material.color;
 		uniforms.opacity.value = material.opacity;
-
+		
 	}
 
 	function refreshUniformsDash( uniforms, material ) {
@@ -21907,9 +21929,9 @@ function WebGLRenderer( parameters ) {
 		if ( material.emissiveMap ) {
 
 			uniforms.emissiveMap.value = material.emissiveMap;
-
+			return 1;
 		}
-
+		return 0;
 	}
 
 	function refreshUniformsPhong( uniforms, material ) {
@@ -21945,6 +21967,8 @@ function WebGLRenderer( parameters ) {
 
 		}
 
+		return 1;
+
 	}
 
 	function refreshUniformsToon( uniforms, material ) {
@@ -21957,6 +21981,7 @@ function WebGLRenderer( parameters ) {
 
 		}
 
+		return 1;
 	}
 
 	function refreshUniformsStandard( uniforms, material ) {
@@ -22011,6 +22036,7 @@ function WebGLRenderer( parameters ) {
 
 		}
 
+		return 1;
 	}
 
 	function refreshUniformsPhysical( uniforms, material ) {
@@ -22019,7 +22045,7 @@ function WebGLRenderer( parameters ) {
 		uniforms.clearCoatRoughness.value = material.clearCoatRoughness;
 
 		refreshUniformsStandard( uniforms, material );
-
+		return 1;
 	}
 
 	function refreshUniformsNormal( uniforms, material ) {
@@ -22046,6 +22072,7 @@ function WebGLRenderer( parameters ) {
 
 		}
 
+		return 0;
 	}
 
 	// If uniforms are marked as clean, they don't need to be loaded to the GPU.
