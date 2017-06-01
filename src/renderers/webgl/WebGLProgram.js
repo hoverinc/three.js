@@ -194,6 +194,15 @@ function unrollLoops( string ) {
 
 }
 
+function djb2Code(str){
+    var hash = 5381;
+    for (var i = 0; i < str.length; i++) {
+        var char = str.charCodeAt(i);
+        hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+    }
+    return hash;
+}
+
 function WebGLProgram( renderer, code, material, parameters ) {
 
 	var gl = renderer.context;
@@ -511,6 +520,19 @@ function WebGLProgram( renderer, code, material, parameters ) {
 
 	// console.log( '*VERTEX*', vertexGlsl );
 	// console.log( '*FRAGMENT*', fragmentGlsl );
+
+	material.__webglShader.vshaderHash = djb2Code(vertexGlsl).toString();
+	material.__webglShader.pshaderHash = djb2Code(fragmentGlsl).toString();
+	if( !(material.__webglShader.vshaderHas in renderer.vxShaderDict)  )
+	{
+		renderer.vxShaderDict[material.__webglShader.vshaderHash] = vertexGlsl;
+	}
+
+	if( !(material.__webglShader.pshaderHash in renderer.pxShaderDict)  )
+	{
+		renderer.pxShaderDict[material.__webglShader.pshaderHash] = fragmentGlsl;
+	}
+
 
 	var glVertexShader = WebGLShader( gl, gl.VERTEX_SHADER, vertexGlsl );
 	var glFragmentShader = WebGLShader( gl, gl.FRAGMENT_SHADER, fragmentGlsl );
